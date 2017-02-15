@@ -5,3 +5,16 @@ There are three steps for achieving the goal: face detection --> training --> fa
 
 ## Requirement
 - openCV: 2.4.13.2
+
+## Training data set
+Run the python script to produce a csv file which includes pairs of image and lable:
+
+``` 
+python creteCSV.py
+```
+
+## Compile and run
+```
+g++ $(pkg-config --cflags --libs opencv) *.cpp
+./a.out
+```
