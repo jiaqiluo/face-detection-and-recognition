@@ -20,13 +20,13 @@ int loadInImages(string path, Mat &output) {
   Mat frame = imread(path);
   // Apply the classifier to the frame
   if (!frame.empty()) {
-    cout << "Success: read in image\n";
+    cout << "Success: read in image\n" << endl;
     namedWindow("Source Image", WINDOW_AUTOSIZE);
     imshow("Source Image", frame);
     frame.copyTo(output);
     return 1;
   } else {
-    cout << " --(!) No captured frame -- Break!\n";
+    cout << " --(!) No captured frame -- Break!\n" << endl;
     return 0;
   }
 }
@@ -42,7 +42,7 @@ void detectAndDisplay(Mat &frame) {
 
   // Load the cascade
   if (!face_cascade.load(face_cascade_name)) {
-    cout << "--(!)Error loading\n";
+    cout << "--(!)Error loading\n" << endl;
     return;
   }
   // detect faces
