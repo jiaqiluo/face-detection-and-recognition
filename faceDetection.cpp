@@ -1,7 +1,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/objdetect/objdetect.hpp"
-#include <stdio.h>
+#include <iostream>
 #include <string>
 
 using namespace std;
@@ -20,13 +20,13 @@ int loadInImages(string path, Mat &output) {
   Mat frame = imread(path);
   // Apply the classifier to the frame
   if (!frame.empty()) {
-    printf("Success: read in image\n");
+    cout << "Success: read in image\n";
     namedWindow("Source Image", WINDOW_AUTOSIZE);
     imshow("Source Image", frame);
     frame.copyTo(output);
     return 1;
   } else {
-    printf(" --(!) No captured frame -- Break!");
+    cout << " --(!) No captured frame -- Break!\n";
     return 0;
   }
 }
@@ -42,7 +42,7 @@ void detectAndDisplay(Mat &frame) {
 
   // Load the cascade
   if (!face_cascade.load(face_cascade_name)) {
-    printf("--(!)Error loading\n");
+    cout << "--(!)Error loading\n";
     return;
   }
   // detect faces
@@ -62,7 +62,7 @@ void detectAndDisplay(Mat &frame) {
 }
 
 int main(int argc, char const *argv[]) {
-  string path = "sampleInput/obama_1.jpg";
+  string path = "sampleInput/obama/obama_1.jpg";
   Mat image;
   loadInImages(path, image);
   if (!image.empty())
