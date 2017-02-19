@@ -8,6 +8,15 @@
 using namespace std;
 using namespace cv;
 
+// prototypes
+static void read_csv(const string &filename, vector<Mat> &images,vector<int> &labels, char separator);
+void eigenFaceRecognization(std::vector<Mat> &trainImages,
+                            std::vector<int> &trainLabels, Mat &testImage,
+                            int &testLabel);
+void fisherFaceRecognization(std::vector<Mat> &trainImages,
+                            std::vector<int> &trainLabels, Mat &testImage,
+                            int &testLabel);
+
 static void read_csv(const string &filename, vector<Mat> &images,
                      vector<int> &labels, char separator = ';') {
   ifstream file(filename.c_str(), ifstream::in);
@@ -27,9 +36,10 @@ static void read_csv(const string &filename, vector<Mat> &images,
       labels.push_back(atoi(classlabel.c_str()));
     }
   }
+  return;
 }
 
-void EigenFaceRecognization(std::vector<Mat> &trainImages,
+void eigenFaceRecognization(std::vector<Mat> &trainImages,
                             std::vector<int> &trainLabels, Mat &testImage,
                             int &testLabel) {
   // The following lines create an Eigenfaces model for face recognition and
@@ -62,7 +72,21 @@ void EigenFaceRecognization(std::vector<Mat> &trainImages,
   string result_message = format("Predicted class = %d / Actual class = %d.",
                                  predictedLabel, testLabel);
   cout << result_message << endl;
+  return;
 }
+
+void fisherFaceRecognization(std::vector<Mat> &trainImages,
+                            std::vector<int> &trainLabels, Mat &testImage,
+                            int &testLabel) {
+  Ptr<FaceRecognizer> model = createFisherFaceRecognizer();
+  model->train(trainImages, trainLabels);
+  int predictedLabel = model->predict(testImage);
+  string result_message = format("Predicted class = %d / Actual class = %d.",
+                                 predictedLabel, testLabel);
+  cout << result_message << endl;
+  return;
+}
+
 
 int main(int argc, char const *argv[]) {
   vector<Mat> images;
@@ -76,7 +100,7 @@ int main(int argc, char const *argv[]) {
     CV_Error(CV_StsError, error_message);
   }
   for (int i = 0; i < labels.size(); i++)
-    cout << labels[1] << endl;
+    cout << labels[i] << endl;
   cout << "Labels Size " << labels.size() << endl;
   cout << "Images Size " << images.size() << endl;
 
@@ -87,6 +111,9 @@ int main(int argc, char const *argv[]) {
   images.pop_back();
   labels.pop_back();
 
-  EigenFaceRecognization(images, labels, testImage, testLabel);
+  cout << "-- eigenFaceRecognization --" << endl;
+  eigenFaceRecognization(images, labels, testImage, testLabel);
+  cout << "-- fisherFaceRecognization --" << endl;
+  fisherFaceRecognization(images, labels, testImage, testLabel);
   return 0;
 }
