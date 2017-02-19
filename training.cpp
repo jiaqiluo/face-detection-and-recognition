@@ -9,13 +9,11 @@ using namespace std;
 using namespace cv;
 
 // prototypes
-static void read_csv(const string &filename, vector<Mat> &images,vector<int> &labels, char separator);
-void eigenFaceRecognization(std::vector<Mat> &trainImages,
-                            std::vector<int> &trainLabels, Mat &testImage,
-                            int &testLabel);
-void fisherFaceRecognization(std::vector<Mat> &trainImages,
-                            std::vector<int> &trainLabels, Mat &testImage,
-                            int &testLabel);
+static void read_csv(const string&, vector<Mat>&, vector<int>&, char);
+void eigenFaceRecognization(vector<Mat>&, vector<int>&, Mat&, int&);
+void fisherFaceRecognization(vector<Mat>&, vector<int>&, Mat&, int&);
+void LBPHFaceRecognization(vector<Mat>&, vector<int>&, Mat&, int&);
+
 
 static void read_csv(const string &filename, vector<Mat> &images,
                      vector<int> &labels, char separator = ';') {
@@ -87,6 +85,17 @@ void fisherFaceRecognization(std::vector<Mat> &trainImages,
   return;
 }
 
+void LBPHFaceRecognization(std::vector<Mat> &trainImages,
+                            std::vector<int> &trainLabels, Mat &testImage,
+                            int &testLabel) {
+  Ptr<FaceRecognizer> model = createLBPHFaceRecognizer();
+  model->train(trainImages, trainLabels);
+  int predictedLabel = model->predict(testImage);
+  string result_message = format("Predicted class = %d / Actual class = %d.",
+                                 predictedLabel, testLabel);
+  cout << result_message << endl;
+  return;
+}
 
 int main(int argc, char const *argv[]) {
   vector<Mat> images;
@@ -115,5 +124,7 @@ int main(int argc, char const *argv[]) {
   eigenFaceRecognization(images, labels, testImage, testLabel);
   cout << "-- fisherFaceRecognization --" << endl;
   fisherFaceRecognization(images, labels, testImage, testLabel);
+  cout << "-- LBPHFaceRecognization --" << endl;
+  LBPHFaceRecognization(images, labels, testImage, testLabel);
   return 0;
 }
