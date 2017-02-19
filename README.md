@@ -10,7 +10,7 @@ There are three steps for achieving the goal: face detection --> training --> fa
 Run the python script to produce a csv file which includes pairs of image and lable:
 
 ```
-python creteCSV.py
+python creteCSV.py path_to_images
 ```
 
 ## Compile and run
