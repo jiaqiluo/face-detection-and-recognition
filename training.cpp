@@ -10,7 +10,7 @@ using namespace cv;
 
 static void read_csv(const string &filename, vector<Mat> &images,
                      vector<int> &labels, char separator = ';') {
-  std::ifstream file(filename.c_str(), ifstream::in);
+  ifstream file(filename.c_str(), ifstream::in);
   if (!file) {
     string error_message =
         "No valid input file was given, please check the given filename.";
@@ -32,18 +32,15 @@ static void read_csv(const string &filename, vector<Mat> &images,
 void EigenFaceRecognization(std::vector<Mat> &trainImages,
                             std::vector<int> &trainLabels, Mat &testImage,
                             int &testLabel) {
-
-  // The following lines create an Eigenfaces model for
-  // face recognition and train it with the images and
-  // labels read from the given CSV file.
-  // This here is a full PCA, if you just want to keep
-  // 10 principal components (read Eigenfaces), then call
-  // the factory method like this:
+  // The following lines create an Eigenfaces model for face recognition and
+  // train it with the images and labels read from the given CSV file.
+  // This is a full PCA, if you just want to keep 10 principal components (read
+  // Eigenfaces), then call the factory method like this:
   //
   //      cv::createEigenFaceRecognizer(10);
   //
-  // If you want to create a FaceRecognizer with a
-  // confidence threshold (e.g. 123.0), call it with:
+  // If you want to create a FaceRecognizer with a confidence threshold (e.g.
+  // 123.0), call it with:
   //
   //      cv::createEigenFaceRecognizer(10, 123.0);
   //
@@ -54,11 +51,9 @@ void EigenFaceRecognization(std::vector<Mat> &trainImages,
   //
   Ptr<FaceRecognizer> model = createEigenFaceRecognizer();
   model->train(trainImages, trainLabels);
-  // The following line predicts the label of a given
-  // test image:
+  // The following line predicts the label of a given test image:
   int predictedLabel = model->predict(testImage);
-  //
-  // To get the confidence of a prediction call the model with:
+  // To get the confidence of a prediction, call the model with:
   //
   //      int predictedLabel = -1;
   //      double confidence = 0.0;
@@ -85,11 +80,8 @@ int main(int argc, char const *argv[]) {
   cout << "Labels Size " << labels.size() << endl;
   cout << "Images Size " << images.size() << endl;
 
-  // The following lines simply get the last images from
-  // your dataset and remove it from the vector. This is
-  // done, so that the training data (which we learn the
-  // cv::FaceRecognizer on) and the test data we test
-  // the model with, do not overlap.
+  // The following lines simply get the last images from your dataset and
+  // remove it from the vector.
   Mat testImage = images[images.size() - 1];
   int testLabel = labels[labels.size() - 1];
   images.pop_back();

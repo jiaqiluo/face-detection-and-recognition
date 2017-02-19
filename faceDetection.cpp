@@ -33,7 +33,7 @@ int loadInImages(string path, Mat &output) {
 
 void detectAndDisplay(Mat &frame) {
   CascadeClassifier face_cascade;
-  std::vector<Rect> faces;
+  vector<Rect> faces;
   Mat frame_gray;
 
   // convert the image to grayscale and normalize histogram:
@@ -48,13 +48,20 @@ void detectAndDisplay(Mat &frame) {
   // detect faces
   face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2,
                                 0 | CV_HAAR_SCALE_IMAGE, Size(30, 30));
+  cout << "the number of faces = " << faces.size() << endl;
   // draw a circle around the face
-  for (size_t i = 0; i < faces.size(); i++) {
-    Point center(faces[i].x + faces[i].width * 0.5,
-                 faces[i].y + faces[i].height * 0.5);
-    ellipse(frame, center, Size(faces[i].width * 0.5, faces[i].height * 0.5), 0,
-            0, 360, Scalar(255, 0, 255), 4, 8, 0);
-  }
+  // for (size_t i = 0; i < faces.size(); i++) {
+  //   Point center(faces[i].x + faces[i].width * 0.5,
+  //                faces[i].y + faces[i].height * 0.5);
+  //   ellipse(frame, center, Size(faces[i].width * 0.5, faces[i].height * 0.5), 0,
+  //           0, 360, Scalar(255, 0, 255), 4, 8, 0);
+  // }
+   for (size_t i = 0; i < faces.size(); i++) {
+     Point pt1(faces[i].x , faces[i].y);
+     Point pt2(pt1.x + 150, pt1.y + 200);
+     circle(frame, pt1, 5, Scalar(255), 2, 8, 0);
+     rectangle(frame, pt1, pt2, Scalar(0, 255, 0), 2, 8, 0);
+   }
   // show the result
   namedWindow("Capture - Face detection", WINDOW_AUTOSIZE);
   imshow("Capture - Face detection", frame);
@@ -62,7 +69,12 @@ void detectAndDisplay(Mat &frame) {
 }
 
 int main(int argc, char const *argv[]) {
-  string path = "sampleInput/obama/obama_1.jpg";
+  // string path = "sampleInput/obama/obama_1.jpg";
+  if(argc <2) {
+    cout << "Use: ./a.out [ImagePath]" << endl;
+    exit(1);
+  }
+  string path = argv[1];
   Mat image;
   loadInImages(path, image);
   if (!image.empty())
