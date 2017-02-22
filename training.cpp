@@ -40,33 +40,9 @@ static void read_csv(const string &filename, vector<Mat> &images,
 void eigenFaceRecognization(std::vector<Mat> &trainImages,
                             std::vector<int> &trainLabels, Mat &testImage,
                             int &testLabel) {
-  // The following lines create an Eigenfaces model for face recognition and
-  // train it with the images and labels read from the given CSV file.
-  // This is a full PCA, if you just want to keep 10 principal components (read
-  // Eigenfaces), then call the factory method like this:
-  //
-  //      cv::createEigenFaceRecognizer(10);
-  //
-  // If you want to create a FaceRecognizer with a confidence threshold (e.g.
-  // 123.0), call it with:
-  //
-  //      cv::createEigenFaceRecognizer(10, 123.0);
-  //
-  // If you want to use _all_ Eigenfaces and have a threshold,
-  // then call the method like this:
-  //
-  //      cv::createEigenFaceRecognizer(0, 123.0);
-  //
   Ptr<FaceRecognizer> model = createEigenFaceRecognizer();
   model->train(trainImages, trainLabels);
-  // The following line predicts the label of a given test image:
   int predictedLabel = model->predict(testImage);
-  // To get the confidence of a prediction, call the model with:
-  //
-  //      int predictedLabel = -1;
-  //      double confidence = 0.0;
-  //      model->predict(testSample, predictedLabel, confidence);
-  //
   string result_message = format("Predicted class = %d / Actual class = %d.",
                                  predictedLabel, testLabel);
   cout << result_message << endl;
@@ -100,7 +76,8 @@ void LBPHFaceRecognization(std::vector<Mat> &trainImages,
 int main(int argc, char const *argv[]) {
   vector<Mat> images;
   vector<int> labels;
-  string filename = "trainSource.csv";
+  // string filename = "trainSource.csv";
+  string filename = "ob_train.csv";
   read_csv(filename, images, labels);
   // Quit if there are not enough images for this demo.
   if (images.size() <= 1) {
@@ -110,8 +87,9 @@ int main(int argc, char const *argv[]) {
   }
   for (int i = 0; i < labels.size(); i++)
     cout << labels[i] << endl;
-  cout << "Labels Size " << labels.size() << endl;
-  cout << "Images Size " << images.size() << endl;
+  cout << "number of Labels " << labels.size() << endl;
+  cout << "number of Images " << images.size() << endl;
+  cout << "image size " << images[2].size() << endl;
 
   // The following lines simply get the last images from your dataset and
   // remove it from the vector.
@@ -120,11 +98,13 @@ int main(int argc, char const *argv[]) {
   images.pop_back();
   labels.pop_back();
 
+  Mat temp = imread("0.jpg", 0);
+  int templable = 9;
   cout << "-- eigenFaceRecognization --" << endl;
-  eigenFaceRecognization(images, labels, testImage, testLabel);
-  cout << "-- fisherFaceRecognization --" << endl;
-  fisherFaceRecognization(images, labels, testImage, testLabel);
-  cout << "-- LBPHFaceRecognization --" << endl;
-  LBPHFaceRecognization(images, labels, testImage, testLabel);
+  eigenFaceRecognization(images, labels, temp, templable);
+  // cout << "-- fisherFaceRecognization --" << endl;
+  // fisherFaceRecognization(images, labels, testImage, testLabel);
+  // cout << "-- LBPHFaceRecognization --" << endl;
+  // LBPHFaceRecognization(images, labels, testImage, testLabel);
   return 0;
 }
