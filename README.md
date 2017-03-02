@@ -7,7 +7,7 @@ There are three steps for achieving the goal: face detection --> training --> fa
 - openCV: 2.4.13.2
 
 ## Training data set
-Run the python script to produce a csv file which includes pairs of image and lable:
+Run the python script to produce a csv file which includes pairs of image and label:
 
 ```
 python creteCSV.py path_to_images
