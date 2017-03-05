@@ -19,7 +19,7 @@ void saveFacestoFiles(string path, string pattern, vector<Rect> faces,
 void displayMarkedImage(vector<Rect> faces, Mat frame);
 
 // Global variables
-string FACE_CASCADE_NAME = "haarcascade_frontalface_alt2.xml";
+string FACE_CASCADE_NAME = "trainingResult/haarcascade_frontalface_alt2.xml";
 
 static Mat norm0_255(InputArray _src) {
   Mat src = _src.getMat();

@@ -9,10 +9,14 @@ using namespace std;
 using namespace cv;
 
 // prototypes
-static void read_csv(const string&, vector<Mat>&, vector<int>&, char);
-void eigenFaceRecognization(vector<Mat>&, vector<int>&, Mat&, int&);
-void fisherFaceRecognization(vector<Mat>&, vector<int>&, Mat&, int&);
-void LBPHFaceRecognization(vector<Mat>&, vector<int>&, Mat&, int&);
+static void read_csv(const string &, vector<Mat> &, vector<int> &, char);
+int eigenTraining(vector<Mat> &trainImages, vector<int> &trainLabels);
+int eigenFaceRecognization(Mat &testImage);
+int fisherTraining(vector<Mat> &trainImages, vector<int> &trainLabels);
+int fisherFaceRecognization(Mat &testImage);
+// Face Recognition based on Local Binary Patterns
+int LBPHTraining(vector<Mat> &trainImages, vector<int> &trainLabels);
+int LBPHFaceRecognization(Mat &testImage);
 
 
 static void read_csv(const string &filename, vector<Mat> &images,
@@ -34,43 +38,94 @@ static void read_csv(const string &filename, vector<Mat> &images,
       labels.push_back(atoi(classlabel.c_str()));
     }
   }
+  if (images.size() <= 1) {
+    string error_message = "This demo needs at least 2 images to work. Please "
+                           "add more images to your data set!";
+    CV_Error(CV_StsError, error_message);
+  }
+  cout << "---- Loading csv file ----" << endl;
+  cout << "label vaules:" << endl;
+  for (int i = 0; i < labels.size(); i++)
+    cout << labels[i] << ", ";
+  cout << "\nSummary:" << endl;
+  cout << "  number of Labels " << labels.size() << endl;
+  cout << "  number of Images " << images.size() << endl;
+  cout << "  image size " << images[1].size() << endl;
+  cout << "---- Loading Success ----" << endl;
   return;
 }
 
-void eigenFaceRecognization(std::vector<Mat> &trainImages,
-                            std::vector<int> &trainLabels, Mat &testImage,
-                            int &testLabel) {
+// This function uses input images and labels to train eigenFaceRecognization
+// and saves the tranning result into a xml file
+int eigenTraining(vector<Mat> &trainImages, vector<int> &trainLabels) {
+  if (trainImages.size() == 0 || trainLabels.size() == 0) {
+    cout << "--(eigenTraining) Error: the training data is empty." << endl;
+    return -1;
+  }
   Ptr<FaceRecognizer> model = createEigenFaceRecognizer();
   model->train(trainImages, trainLabels);
-  int predictedLabel = model->predict(testImage);
-  string result_message = format("Predicted class = %d / Actual class = %d.",
-                                 predictedLabel, testLabel);
-  cout << result_message << endl;
-  return;
+  model->save("trainingResult/eigenTrained.xml");
+  return 1;
 }
 
-void fisherFaceRecognization(std::vector<Mat> &trainImages,
-                            std::vector<int> &trainLabels, Mat &testImage,
-                            int &testLabel) {
+// this function uses the training result to predict whethe the input
+// testImage is the same person,
+// outout: an integer for predicted lable
+int eigenFaceRecognization(Mat &testImage) {
+  Ptr<FaceRecognizer> model = createEigenFaceRecognizer();
+  model->load("trainingResult/eigenTrained.xml");
+  int predictedLabel = model->predict(testImage);
+  // string result_message = format("Predicted class = %d / Actual class = %d.",
+  //                                predictedLabel, testLabel);
+  // cout << result_message << endl;
+  return predictedLabel;
+}
+
+// This function uses input images and labels to train fisherFaceRecognization
+// and saves the tranning result into a xml file
+int fisherTraining(vector<Mat> &trainImages, vector<int> &trainLabels) {
+  if (trainImages.size() == 0 || trainLabels.size() == 0) {
+    cout << "--(fisherTraining) Error: the training data is empty." << endl;
+    return -1;
+  }
   Ptr<FaceRecognizer> model = createFisherFaceRecognizer();
   model->train(trainImages, trainLabels);
-  int predictedLabel = model->predict(testImage);
-  string result_message = format("Predicted class = %d / Actual class = %d.",
-                                 predictedLabel, testLabel);
-  cout << result_message << endl;
-  return;
+  model->save("trainingResult/fisherTrained.xml");
+  return 1;
 }
 
-void LBPHFaceRecognization(std::vector<Mat> &trainImages,
-                            std::vector<int> &trainLabels, Mat &testImage,
-                            int &testLabel) {
+// this function uses the training result to predict whethe the input
+// testImage is the same person,
+// outout: an integer for predicted lable
+int fisherFaceRecognization(Mat &testImage) {
+  Ptr<FaceRecognizer> model = createFisherFaceRecognizer();
+  model->load("trainingResult/fisherTrained.xml");
+  int predictedLabel = model->predict(testImage);
+  return predictedLabel;
+}
+
+// This function uses input images and labels to train LBPHFaceRecognization
+// and saves the tranning result into a xml file
+int LBPHTraining(vector<Mat> &trainImages, vector<int> &trainLabels) {
+  if (trainImages.size() == 0 || trainLabels.size() == 0) {
+    cout << "--(LBPHTraining) Error: the training data is empty." << endl;
+    return -1;
+  }
   Ptr<FaceRecognizer> model = createLBPHFaceRecognizer();
   model->train(trainImages, trainLabels);
+  model->save("trainingResult/LBPHTrained.xml");
+  cout << "LBPHTrained works" << endl;
+  return 1;
+}
+
+// this function uses the training result to predict whethe the input
+// testImage is the same person,
+// outout: an integer for predicted lable
+int LBPHFaceRecognization(Mat &testImage) {
+  Ptr<FaceRecognizer> model = createLBPHFaceRecognizer();
+  model->load("trainingResult/LBPHTrained.xml");
   int predictedLabel = model->predict(testImage);
-  string result_message = format("Predicted class = %d / Actual class = %d.",
-                                 predictedLabel, testLabel);
-  cout << result_message << endl;
-  return;
+  return predictedLabel;
 }
 
 int main(int argc, char const *argv[]) {
@@ -79,17 +134,6 @@ int main(int argc, char const *argv[]) {
   // string filename = "trainSource.csv";
   string filename = "ob_train.csv";
   read_csv(filename, images, labels);
-  // Quit if there are not enough images for this demo.
-  if (images.size() <= 1) {
-    string error_message = "This demo needs at least 2 images to work. Please "
-                           "add more images to your data set!";
-    CV_Error(CV_StsError, error_message);
-  }
-  for (int i = 0; i < labels.size(); i++)
-    cout << labels[i] << endl;
-  cout << "number of Labels " << labels.size() << endl;
-  cout << "number of Images " << images.size() << endl;
-  cout << "image size " << images[2].size() << endl;
 
   // The following lines simply get the last images from your dataset and
   // remove it from the vector.
@@ -98,13 +142,21 @@ int main(int argc, char const *argv[]) {
   images.pop_back();
   labels.pop_back();
 
-  Mat temp = imread("0.jpg", 0);
-  int templable = 9;
   cout << "-- eigenFaceRecognization --" << endl;
-  eigenFaceRecognization(images, labels, temp, templable);
-  // cout << "-- fisherFaceRecognization --" << endl;
-  // fisherFaceRecognization(images, labels, testImage, testLabel);
-  // cout << "-- LBPHFaceRecognization --" << endl;
+  if (eigenTraining(images, labels) == 1) {
+    cout << "testLabel: " << testLabel << endl;
+    cout << eigenFaceRecognization(testImage) << endl;
+  }
+  cout << "-- fisherFaceRecognization --" << endl;
+  if (fisherTraining(images, labels) == 1) {
+    cout << "testLabel: " << testLabel << endl;
+    cout << fisherFaceRecognization(testImage) << endl;
+  }
+  cout << "-- LBPHFaceRecognization --" << endl;
+  if (LBPHTraining(images, labels) == 1) {
+    cout << "testLabel: " << testLabel << endl;
+    cout << LBPHFaceRecognization(testImage) << endl;
+  }
   // LBPHFaceRecognization(images, labels, testImage, testLabel);
   return 0;
 }
