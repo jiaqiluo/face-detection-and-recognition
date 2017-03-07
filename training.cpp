@@ -1,12 +1,13 @@
 #include "opencv2/contrib/contrib.hpp"
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
-
 #include <fstream>
 #include <iostream>
 #include <sstream>
 using namespace std;
 using namespace cv;
+// #include "params.hpp"
+#include "lid.hpp"
 
 // prototypes
 static void read_csv(const string &, vector<Mat> &, vector<int> &, char);
@@ -157,6 +158,13 @@ int main(int argc, char const *argv[]) {
     cout << "testLabel: " << testLabel << endl;
     cout << LBPHFaceRecognization(testImage) << endl;
   }
+
+  std::cout << "Training LID Face Recogniser..." << std::endl;
+    cv::Ptr<cv::FaceRecognizer> model = createLidFaceRecognizer(1, 1.0);
+    // cv::Ptr<cv::FaceRecognizer> model = new Lidfaces();
+    model->train(images, labels);
+    model->save("trained_lid.xml");
+    cout << "predict: " << model->predict(testImage) << endl;
   // LBPHFaceRecognization(images, labels, testImage, testLabel);
   return 0;
 }
