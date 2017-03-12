@@ -58,11 +58,21 @@ namespace params {
     const double threshold = 52.0f;
   }
   namespace lidFace {
-    const int inradius = 1;
-    const double threshold = DBL_MAX;
-    const double clustersAsPercentageOfKeypoints = 0.9f;
+  const int inradius = 1;
+  const double threshold = DBL_MAX;
+  const double clustersAsPercentageOfKeypoints = 0.9f;
+  }
+  namespace sift {
+    // There is a bug in 2.4.2 where this parameter does not work, so I have to
+    // leave it at 0
+    const int nfeatures = 0;               // Default 0
+    const int nOctaveLayers = 5;           // Default 3
+    const double contrastThreshold = 0.06; // Default 0.04
+    const double edgeThreshold = 10;       // Default 10
+    const double sigma = 3;                // Default 1.6
   }
 
+  
 //-------- the below is the orginal one, will be removed -------------------
 namespace training {
 // The faces must be broken up into training images and images used to measure
@@ -73,15 +83,7 @@ const double trainingToValidationRatio = 0.7f;
 
 
 
-namespace sift {
-// There is a bug in 2.4.2 where this parameter does not work, so I have to
-// leave it at 0
-const int nfeatures = 0;               // Default 0
-const int nOctaveLayers = 5;           // Default 3
-const double contrastThreshold = 0.06; // Default 0.04
-const double edgeThreshold = 10;       // Default 10
-const double sigma = 3;                // Default 1.6
-}
+
 namespace kmeans {
 const cv::TermCriteria
     termCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 1000, 0.01);

@@ -1,11 +1,13 @@
-// OpenCV does not have an implementation of LID descriptors for face detection
-// so I had to write my
-// own. I inherit from the FaceRecognizer class and implement it such that it is
-// used identically to
-// the other FaceRecognizers (such as EigenFaces, FisherFaces and LBPHFaces).
-
+#include "opencv2/contrib/contrib.hpp"
 #include "opencv2/core/core.hpp"
-#include <cstdlib>
+#include "opencv2/core/mat.hpp"
+#include "opencv2/features2d/features2d.hpp"
+#include "opencv2/nonfree/nonfree.hpp"
+#include "params.hpp"
+#include <assert.h>
+#include <vector>
+using namespace std;
+using namespace cv;
 
 cv::Mat lid(const cv::Mat &src, cv::Point p, int inradius);
 

@@ -1,4 +1,4 @@
-#include "training.hpp"
+  #include "training.hpp"
 
 static void read_csv(const string &filename, vector<Mat> &images,
                      vector<int> &labels, char separator = ';') {
@@ -122,7 +122,7 @@ int lidTraining(vector<Mat> &trainImages, vector<int> &trainLabels) {
     cout << "--(LBPHTraining) Error: the training data is empty." << endl;
     return -1;
   }
-  cv::Ptr<cv::FaceRecognizer> model = createLidFaceRecognizer();
+  cv::Ptr<cv::FaceRecognizer> model = createLidFaceRecognizer(params::lidFace::inradius, params::lidFace::threshold);
   model->train(trainImages, trainLabels);
   model->save("trainingResult/LIDTrained.xml");
   // cout << "LIDTraining works" << endl;
