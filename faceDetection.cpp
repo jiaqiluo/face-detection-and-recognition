@@ -1,25 +1,5 @@
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/objdetect/objdetect.hpp"
-#include <iostream>
-#include <string>
-#include <vector>
-#include <sys/stat.h>   // for creating directory
-#include <sys/types.h>  // for creating directory
-using namespace std;
-using namespace cv;
+#include "faceDetection.hpp"
 
-// Function prototypes
-Mat loadInImages(string);
-Mat prepareImage(Mat frame);
-void detectFace(vector<Rect> &faces, Mat frame_gray);
-void displayFacesList(vector<Rect> faces, Mat frame);
-void saveFacestoFiles(string path, string pattern, vector<Rect> faces,
-                      Mat frame);
-void displayMarkedImage(vector<Rect> faces, Mat frame);
-
-// Global variables
-string FACE_CASCADE_NAME = "trainingResult/haarcascade_frontalface_alt2.xml";
 
 static Mat norm0_255(InputArray _src) {
   Mat src = _src.getMat();
@@ -39,6 +19,17 @@ static Mat norm0_255(InputArray _src) {
   return dst;
 }
 
+static string parserImageName(string path) {
+  string delimiter1 = "/";
+  string delimiter2 = ".";
+  size_t pos = 0;
+  while ((pos = path.find(delimiter1)) != std::string::npos) {
+    path.erase(0, pos + delimiter1.length());
+  }
+  pos = path.find(delimiter2);
+  return path.substr(0, pos);
+}
+
 // this function loads in and normalizes the source image from the given path
 // return type: Mat
 //        note: the source image
@@ -49,13 +40,14 @@ Mat loadInImages(string path) {
   // Apply the classifier to the frame
   if (!frame.empty()) {
     cout << "Success: read in image\n" << endl;
-    namedWindow("Source Image", WINDOW_AUTOSIZE);
-    imshow("Source Image", frame);
+    // namedWindow("Source Image", WINDOW_AUTOSIZE);
+    // imshow("Source Image", frame);
     output = norm0_255(frame);
-    namedWindow("normalized source", WINDOW_AUTOSIZE);
-    imshow("normalized source", output);
-  } else
+    // namedWindow("normalized source", WINDOW_AUTOSIZE);
+    // imshow("normalized source", output);
+  } else {
     cout << " --(loadInImages) Error: No captured frame -- Break!\n" << endl;
+  }
   return output;
 }
 
@@ -70,8 +62,8 @@ Mat prepareImage(Mat frame) {
   }
   cvtColor(frame, frame_gray, CV_BGR2GRAY);
   equalizeHist(frame_gray, frame_gray);
-  namedWindow("equalizeHist", WINDOW_AUTOSIZE);
-  imshow("equalizeHist", frame_gray);
+  // namedWindow("equalizeHist", WINDOW_AUTOSIZE);
+  // imshow("equalizeHist", frame_gray);
   return frame_gray;
 }
 
@@ -85,13 +77,18 @@ void detectFace(vector<Rect> &faces, Mat frame_gray) {
   }
   CascadeClassifier face_cascade;
   // Load the cascade
-  if (!face_cascade.load(FACE_CASCADE_NAME)) {
-    cout << "--(detectFace) Error: loading face cascade failes.\n" << endl;
+  if (!face_cascade.load(params::detection::FACE_CASCADE_NAME)) {
+    cout << "--(detectFace) Error: cannot load "
+         << params::detection::FACE_CASCADE_NAME << endl;
     return;
   }
   // detect faces
-  face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2,
-                                0 | CV_HAAR_SCALE_IMAGE, Size(30, 30));
+  // face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2,
+  //                               0 | CV_HAAR_SCALE_IMAGE, Size(30, 30));
+  face_cascade.detectMultiScale(
+      frame_gray, faces, params::cascadeClassifier::scaleFactor,
+      params::cascadeClassifier::minNeighbors, params::cascadeClassifier::flags,
+      params::cascadeClassifier::minSize, params::cascadeClassifier::maxSize);
   cout << "the number of faces = " << faces.size() << endl;
   return;
 }
@@ -114,49 +111,25 @@ void displayFacesList(vector<Rect> faces, Mat frame) {
     string title = "face" + to_string(i) + ".jpg";
     namedWindow(title, WINDOW_AUTOSIZE);
     imshow(title, temp);
-    // imwrite(title, temp);
   }
   return;
 }
 
-// TODO : finish this function
-void saveFacestoFiles(string path, vector<Rect> faces, Mat frame) {
+void saveFaces(String path, vector<Rect> faces, Mat frame) {
   if (frame.empty()) {
-    cout << "--(saveFacestoFiles) Error: the Mat frame is empty." << endl;
+    cout << "--(saveFaces) Error: the Mat frame is empty." << endl;
     return;
   }
   int fsize = faces.size();
   if (fsize == 0) {
-    cout << "--(saveFacestoFiles) Error: the vector<Rect> faces is empty."
-         << endl;
+    cout << "--(saveFaces) Error: the vector<Rect> faces is empty." << endl;
     return;
   }
   for (size_t i = 0; i < fsize; i++) {
     Mat temp = Mat(frame, faces[i]);
     resize(temp, temp, Size(300, 300));
-    string title = "test/face" + to_string(i) + ".jpg";
-    imwrite(title, temp);
-  }
-  return;
-}
-
-
-void save(vector<Rect> faces,
-                      Mat frame) {
-  if (frame.empty()) {
-    cout << "--(saveFacestoFiles) Error: the Mat frame is empty." << endl;
-    return;
-  }
-  int fsize = faces.size();
-  if (fsize == 0) {
-    cout << "--(saveFacestoFiles) Error: the vector<Rect> faces is empty."
-         << endl;
-    return;
-  }
-  for (size_t i = 0; i < fsize; i++) {
-    Mat temp = Mat(frame, faces[i]);
-    resize(temp, temp, Size(300, 300));
-    string title = "test/face" + to_string(i) + ".jpg";
+    string title = "detectedFaces/" + parserImageName(path) + "_" +
+                   to_string(i + 1) + ".jpg";
     imwrite(title, temp);
   }
   return;
@@ -177,33 +150,11 @@ void displayMarkedImage(vector<Rect> faces, Mat frame) {
   frame.copyTo(temp);
   for (size_t i = 0; i < fsize; i++) {
     Point pt1(faces[i].x, faces[i].y);
-    Point pt2(pt1.x + faces[i].width, pt1.y  + faces[i].height);
+    Point pt2(pt1.x + faces[i].width, pt1.y + faces[i].height);
     // circle(frame, pt1, 5, Scalar(255), 2, 8, 0);
     rectangle(temp, pt1, pt2, Scalar(0, 255, 0), 2, 8, 0);
   }
   // show the result
   namedWindow("Capture - Face detection", WINDOW_AUTOSIZE);
   imshow("Capture - Face detection", temp);
-}
-
-int main(int argc, char const *argv[]) {
-  // string path = "sampleInput/obama/obama_1.jpg";
-  if (argc < 2) {
-    cout << "Use: ./a.out [ImagePath]" << endl;
-    exit(1);
-  }
-  string path = argv[1];
-  Mat image = loadInImages(path);
-  Mat temp;
-  vector<Rect> faces;
-  if (!image.empty()) {
-    temp = prepareImage(image);
-    detectFace(faces, temp);
-    displayFacesList(faces, temp);
-    displayFacesList(faces, temp);
-    displayMarkedImage(faces, image);
-    save(faces, temp);
-    waitKey(0);
-  }
-  return 0;
 }
