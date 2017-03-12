@@ -127,7 +127,8 @@ void saveFaces(String path, vector<Rect> faces, Mat frame) {
   }
   for (size_t i = 0; i < fsize; i++) {
     Mat temp = Mat(frame, faces[i]);
-    resize(temp, temp, Size(300, 300));
+    resize(temp, temp, Size(92, 112));
+    // resize(temp, temp, Size(300, 300));
     string title = "detectedFaces/" + parserImageName(path) + "_" +
                    to_string(i + 1) + ".jpg";
     imwrite(title, temp);

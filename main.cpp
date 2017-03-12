@@ -9,15 +9,19 @@ int main(int argc, char const *argv[]) {
   }
   string path = argv[1];
   Mat image = loadInImages(path);
-  Mat temp;
+  Mat image_gray;
   vector<Rect> faces;
   if (!image.empty()) {
-    temp = prepareImage(image);
-    detectFace(faces, temp);
-    // displayFacesList(faces, temp);
+    image_gray = prepareImage(image);
+    detectFace(faces, image_gray);
+    displayFacesList(faces, image_gray);
     displayMarkedImage(faces, image);
-    saveFaces(path, faces, temp);
-    waitKey(0);
+    saveFaces(path, faces, image_gray);
   }
+  if(faces.size() > 0) {
+    cout << "---- Start recognizing faces -----" << endl;
+  }
+  cout << "Press any key to exit. " << endl;
+  waitKey(0);
   return 0;
 }
