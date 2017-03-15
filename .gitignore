@@ -3,3 +3,4 @@ sampleInput/*
 *.jpg
 *.xml
 *.csv
+*.pgm

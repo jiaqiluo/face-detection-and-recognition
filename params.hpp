@@ -34,7 +34,7 @@ namespace params {
     // set it to a value less-equal 0 or greater (c-1), it will be set to
     // the correct number (c-1) automatically.
     // threshold – The threshold applied in the prediction. If the distance to the nearest neighbor is larger than the threshold, this method returns -1.
-    const int numComponents = 0; // OpenCV will set numComponents to {classes}-1
+    const int numComponents = 1; // OpenCV will set numComponents to {classes}-1
     const double threshold = DBL_MAX;
   }
   namespace lbphFace {
@@ -71,26 +71,12 @@ namespace params {
     const double edgeThreshold = 10;       // Default 10
     const double sigma = 3;                // Default 1.6
   }
-
-  
-//-------- the below is the orginal one, will be removed -------------------
-namespace training {
-// The faces must be broken up into training images and images used to measure
-// performance
-const double trainingToValidationRatio = 0.7f;
-}
-
-
-
-
-
-namespace kmeans {
-const cv::TermCriteria
-    termCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 1000, 0.01);
-const int attempts = 5;
-const int flags = cv::KMEANS_PP_CENTERS;
-// K (the number of clusters) is not specified here as it is determined by the
-// number of
-// keypoints (and not a compile-time constant)
-}
+  namespace kmeans {
+    const cv::TermCriteria
+        termCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 1000, 0.01);
+    const int attempts = 5;
+    const int flags = cv::KMEANS_PP_CENTERS;
+    // K (the number of clusters) is not specified here as it is determined by the
+    // number of keypoints (and not a compile-time constant)
+  }
 }

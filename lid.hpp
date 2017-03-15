@@ -3,7 +3,10 @@
 #include "opencv2/core/mat.hpp"
 #include "opencv2/features2d/features2d.hpp"
 #include "opencv2/nonfree/nonfree.hpp"
+#ifndef EXAMPLE_H
+#define EXAMPLE_H
 #include "params.hpp"
+#endif
 #include <assert.h>
 #include <vector>
 using namespace std;

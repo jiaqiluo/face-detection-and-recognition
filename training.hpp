@@ -19,3 +19,4 @@ int lbphTraining(vector<Mat> &trainImages, vector<int> &trainLabels);
 int lbphFaceRecognization(Mat &testImage);
 int lidTraining(vector<Mat> &trainImages, vector<int> &trainLabels);
 int lidFaceRecognization(Mat &testImage);
+int run(Mat testImage, int testLabel, bool retrain);

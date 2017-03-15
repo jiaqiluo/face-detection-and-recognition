@@ -26,17 +26,17 @@ static void read_csv(const string &filename, vector<Mat> &images,
     CV_Error(CV_StsError, error_message);
   }
   cout << "---- Loading csv file ----" << endl;
-  cout << "label vaules:" << endl;
-  for (int i = 0; i < labels.size(); i++)
-    cout << labels[i] << ", ";
-  cout << "\nSummary:" << endl;
-  cout << "  number of Labels " << labels.size() << endl;
-  cout << "  number of Images " << images.size() << endl;
-  // cout << "  image size " << images[1].size() << endl;
-  cout << "image size: " << endl;
-  for (int i = 0; i < labels.size(); i++)
-    cout << images[i].size() << ", ";
-  cout << "Loading Success\n" << endl;
+  // cout << "label vaules:" << endl;
+  // for (int i = 0; i < labels.size(); i++)
+  //   cout << labels[i] << ", ";
+  // cout << "\nSummary:" << endl;
+  // cout << "  number of Labels " << labels.size() << endl;
+  // cout << "  number of Images " << images.size() << endl;
+  // // cout << "  image size " << images[1].size() << endl;
+  // cout << "image size: " << endl;
+  // for (int i = 0; i < labels.size(); i++)
+  //   cout << images[i].size() << ", ";
+  // cout << "Loading Success\n" << endl;
   return;
 }
 
@@ -51,12 +51,13 @@ int eigenTraining(vector<Mat> &trainImages, vector<int> &trainLabels) {
       params::eigenFace::numComponents, params::eigenFace::threshold);
   model->train(trainImages, trainLabels);
   model->save("trainingResult/eigenTrained.xml");
+  cout << "-- eigenTraining finished." << endl;
   return 1;
 }
 
 // this function uses the training result to predict whethe the input
 // testImage is the same person,
-// outout: an integer for predicted lable
+// outout: an integer for predicted label
 int eigenFaceRecognization(Mat &testImage) {
   Ptr<FaceRecognizer> model = createEigenFaceRecognizer();
   model->load("trainingResult/eigenTrained.xml");
@@ -78,12 +79,13 @@ int fisherTraining(vector<Mat> &trainImages, vector<int> &trainLabels) {
       params::fisherFace::numComponents, params::fisherFace::threshold);
   model->train(trainImages, trainLabels);
   model->save("trainingResult/fisherTrained.xml");
+  cout << "-- fisherTraining finished." << endl;
   return 1;
 }
 
 // this function uses the training result to predict whethe the input
 // testImage is the same person,
-// outout: an integer for predicted lable
+// outout: an integer for predicted label
 int fisherFaceRecognization(Mat &testImage) {
   Ptr<FaceRecognizer> model = createFisherFaceRecognizer();
   model->load("trainingResult/fisherTrained.xml");
@@ -95,7 +97,7 @@ int fisherFaceRecognization(Mat &testImage) {
 // and saves the tranning result into a xml file
 int lbphTraining(vector<Mat> &trainImages, vector<int> &trainLabels) {
   if (trainImages.size() == 0 || trainLabels.size() == 0) {
-    cout << "--(LBPHTraining) Error: the training data is empty." << endl;
+    cout << "--(lbphTraining) Error: the training data is empty." << endl;
     return -1;
   }
   Ptr<FaceRecognizer> model = createLBPHFaceRecognizer(
@@ -103,73 +105,78 @@ int lbphTraining(vector<Mat> &trainImages, vector<int> &trainLabels) {
       params::lbphFace::gridX, params::lbphFace::gridY,
       params::lbphFace::threshold);
   model->train(trainImages, trainLabels);
-  model->save("trainingResult/LBPHTrained.xml");
+  model->save("trainingResult/lbphTrained.xml");
+  cout << "lbphTraining finished" << endl;
   return 1;
 }
 
 // this function uses the training result to predict whethe the input
 // testImage is the same person,
-// outout: an integer for predicted lable
+// outout: an integer for predicted label
 int lbphFaceRecognization(Mat &testImage) {
   Ptr<FaceRecognizer> model = createLBPHFaceRecognizer();
-  model->load("trainingResult/LBPHTrained.xml");
+  model->load("trainingResult/lbphTrained.xml");
   int predictedLabel = model->predict(testImage);
   return predictedLabel;
 }
 
 int lidTraining(vector<Mat> &trainImages, vector<int> &trainLabels) {
   if (trainImages.size() == 0 || trainLabels.size() == 0) {
-    cout << "--(LBPHTraining) Error: the training data is empty." << endl;
+    cout << "--(lidTraining) Error: the training data is empty." << endl;
     return -1;
   }
   cv::Ptr<cv::FaceRecognizer> model = createLidFaceRecognizer(params::lidFace::inradius, params::lidFace::threshold);
   model->train(trainImages, trainLabels);
-  model->save("trainingResult/LIDTrained.xml");
+  model->save("trainingResult/lidTrained.xml");
+  cout << "-- lidTraining finished" << endl;
   // cout << "LIDTraining works" << endl;
   return 1;
 }
 
 int lidFaceRecognization(Mat &testImage) {
   Ptr<FaceRecognizer> model = createLidFaceRecognizer();
-  model->load("trainingResult/LBPHTrained.xml");
+  model->load("trainingResult/lbphTrained.xml");
   int predictedLabel = model->predict(testImage);
   return predictedLabel;
 }
 
-int main(int argc, char const *argv[]) {
+int run(Mat testImage, int testLabel, bool retrain) {
   vector<Mat> images;
   vector<int> labels;
-  // string filename = "trainSource.csv";
-  string filename = "ob_train.csv";
+  string filename = "trainSource.csv";
   read_csv(filename, images, labels);
 
-  // The following lines simply get the last images from your dataset and
-  // remove it from the vector.
-  Mat testImage = images[images.size() - 1];
-  int testLabel = labels[labels.size() - 1];
-  images.pop_back();
-  labels.pop_back();
+  // // The following lines simply get the last images from your dataset and
+  // // remove it from the vector.
+  // Mat testImage = images[images.size() - 1];
+  // int testLabel = labels[labels.size() - 1];
+  // images.pop_back();
+  // labels.pop_back();
 
-  cout << "-- eigenFaceRecognization --" << endl;
-  if (eigenTraining(images, labels) == 1) {
-    cout << "testLabel: " << testLabel << endl;
-    cout << eigenFaceRecognization(testImage) << endl;
-  }
-  cout << "-- fisherFaceRecognization --" << endl;
-  if (fisherTraining(images, labels) == 1) {
-    cout << "testLabel: " << testLabel << endl;
-    cout << fisherFaceRecognization(testImage) << endl;
-  }
-  cout << "-- LBPHFaceRecognization --" << endl;
-  if (lbphTraining(images, labels) == 1) {
-    cout << "testLabel: " << testLabel << endl;
-    cout << lbphFaceRecognization(testImage) << endl;
-  }
-
-  cout << "-- LIDFaceRecognization --" << endl;
   cv::Ptr<cv::FaceRecognizer> model = createLidFaceRecognizer();
-  model->train(images, labels);
-  cout << "testLabel: " << testLabel << endl;
-  cout << model->predict(testImage) << endl;
+  if(retrain) {
+    cout << "---- start training ----" << endl;
+    eigenTraining(images, labels);
+    fisherTraining(images, labels);
+    lbphTraining(images, labels);
+    model->train(images, labels);
+    model->save("trainingResult/lidTrained.xml");
+    cout << "-- lidtraning finished" << endl;
+  }
+  else {
+    model->load("trainingResult/lidTrained.xml");
+  }
+  cout << "\n\n-- eigenFaceRecognization --" << endl;
+  cout << "given label: " << testLabel << endl;
+  cout << "prediction label: " << eigenFaceRecognization(testImage) << endl;
+  cout << "-- fisherFaceRecognization --" << endl;
+  cout << "given label: " << testLabel << endl;
+  cout <<  "prediction label: " << fisherFaceRecognization(testImage) << endl;
+  cout << "-- LBPHFaceRecognization --" << endl;
+  cout << "given label: " << testLabel << endl;
+  cout <<  "prediction label: " << lbphFaceRecognization(testImage) << endl;
+  cout << "-- LIDFaceRecognization --" << endl;
+  cout << "given label: " << testLabel << endl;
+  cout <<  "prediction label: " << model->predict(testImage) << endl;
   return 0;
 }

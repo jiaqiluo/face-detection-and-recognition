@@ -1,7 +1,10 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/objdetect/objdetect.hpp"
+#ifndef EXAMPLE_H
+#define EXAMPLE_H
 #include "params.hpp"
+#endif
 #include <iostream>
 #include <string>
 #include <vector>

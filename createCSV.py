@@ -36,16 +36,14 @@ if __name__ == "__main__":
   BASE_PATH = sys.argv[1]
   SEPARATOR = ";"
 
-  label = 0
   temp = ""
   for dirname, dirnames, filenames in os.walk(BASE_PATH):
     for subdirname in dirnames:
       subject_path = os.path.join(dirname, subdirname)
       for filename in os.listdir(subject_path):
         abs_path = "%s/%s" % (subject_path, filename)
-        temp +=  "%s%s%d\n" % (abs_path, SEPARATOR, label)
-        # print "%s%s%d" % (abs_path, SEPARATOR, label)
-      label = label + 1
+        if ".DS_Store" not in abs_path:
+            temp +=  "%s%s%s\n" % (abs_path, SEPARATOR, subdirname[1:])
   f = open(sys.argv[2], 'w')
   f.write(temp)
   f.close()
